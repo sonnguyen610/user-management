@@ -27,7 +27,27 @@ public class ProductResponseDTO {
 
     private Boolean status;
 
-    private String categoryName;
+    private CategotyDTO category;
 
-    private String brandName;
+    private BrandDTO brand;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CategotyDTO {
+        Integer id;
+        String name;
+        String code;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class BrandDTO {
+        Integer id;
+        String name;
+        String code;
+    }
 }
