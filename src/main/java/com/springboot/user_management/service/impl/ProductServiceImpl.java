@@ -97,6 +97,59 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto) {
+        try {
+            String name = dto.getName() != null ? dto.getName().trim() : null;
+
+            if (!productRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.PRODUCT_NOT_FOUND);
+            }
+
+            if (name == null || name.isEmpty()) {
+                throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
+            }
+
+            if (productRepository.existsByNameAndIdNot(name, id)) {
+                throw new BadRequestException(FailureMessage.NAME_EXISTS);
+            }
+
+            if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BadRequestException(FailureMessage.PRODUCT_PRICE_ERROR);
+            }
+
+            Product product = productRepository.getReferenceById(id);
+            product.setName(name);
+            product.setPrice(dto.getPrice());
+            product.setQuantity(dto.getQuantity() == null ? product.getQuantity() : dto.getQuantity());
+            product.setDescription(dto.getDescription() == null ? product.getDescription() : dto.getDescription());
+
+            if (dto.getCategoryId() != null) {
+                if (!categoryRepository.existsByIdAndStatusIsTrue(dto.getCategoryId())) {
+                    throw new BadRequestException(FailureMessage.CATEGORY_NOT_FOUND);
+                }
+
+                Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+                product.setCategory(category);
+            }
+
+            if (dto.getBrandId() != null) {
+                if (!brandRepository.existsByIdAndStatusIsTrue(dto.getBrandId())) {
+                    throw new BadRequestException(FailureMessage.BRAND_NOT_FOUND);
+                }
+
+                Brand brand = brandRepository.getReferenceById(dto.getBrandId());
+                product.setBrand(brand);
+            }
+
+            productRepository.save(product);
+            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
     private String generateProductCode(String brandCode, String categoryCode, Integer id) {
         return String.format("%s-%s-%05d", brandCode, categoryCode, id);
     }

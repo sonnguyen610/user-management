@@ -12,4 +12,6 @@ public interface ProductService {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct();
 
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
+
+    ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto);
 }

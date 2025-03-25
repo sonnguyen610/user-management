@@ -13,4 +13,7 @@ public class FailureMessage {
     public static final String BRAND_NOT_SELECTED = "Please select a brand!";
     public static final String NAME_EXISTS = "This name already exists!";
     public static final String CODE_EXISTS = "This code already exists!";
+    public static final String PRODUCT_NOT_FOUND = "Product not found!";
+    public static final String CATEGORY_NOT_FOUND = "Category not found!";
+    public static final String BRAND_NOT_FOUND = "Brand not found!";
 }

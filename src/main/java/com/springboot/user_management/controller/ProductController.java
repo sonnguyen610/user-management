@@ -5,10 +5,7 @@ import com.springboot.user_management.dto.response.ProductResponseDTO;
 import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,4 +17,8 @@ public interface ProductController {
 
     @PostMapping
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO dto);
+
+    @PutMapping("/{id}")
+    ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(@PathVariable Integer id,
+                                                                 @RequestBody ProductRequestDTO dto);
 }
