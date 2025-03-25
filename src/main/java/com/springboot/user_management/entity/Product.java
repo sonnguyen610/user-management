@@ -27,7 +27,7 @@ public class Product extends BaseEntity {
     private String code;
 
     @Column(name = "status")
-    private String status;
+    private Boolean status;
 
     @Column(name = "description")
     private String description;
@@ -41,4 +41,8 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
 }
