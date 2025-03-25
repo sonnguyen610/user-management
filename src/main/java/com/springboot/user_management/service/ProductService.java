@@ -14,4 +14,6 @@ public interface ProductService {
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
 
     ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto);
+
+    ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id);
 }

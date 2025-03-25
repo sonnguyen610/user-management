@@ -21,4 +21,7 @@ public interface ProductController {
     @PutMapping("/{id}")
     ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(@PathVariable Integer id,
                                                                  @RequestBody ProductRequestDTO dto);
+
+    @GetMapping("/{id}")
+    ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(@PathVariable Integer id);
 }

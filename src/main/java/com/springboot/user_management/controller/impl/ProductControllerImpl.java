@@ -31,4 +31,9 @@ public class ProductControllerImpl implements ProductController {
     public ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto) {
         return productService.editProduct(id, dto);
     }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id) {
+        return productService.viewProduct(id);
+    }
 }

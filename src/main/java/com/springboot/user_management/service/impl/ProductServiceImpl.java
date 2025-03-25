@@ -150,6 +150,21 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id) {
+        try {
+            if (!productRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.PRODUCT_NOT_FOUND);
+            }
+
+            Product product = productRepository.getReferenceById(id);
+            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
     private String generateProductCode(String brandCode, String categoryCode, Integer id) {
         return String.format("%s-%s-%05d", brandCode, categoryCode, id);
     }
