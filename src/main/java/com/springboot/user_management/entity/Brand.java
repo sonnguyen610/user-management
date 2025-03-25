@@ -32,6 +32,9 @@ public class Brand extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "created_by")
+    private String createdBy;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "brand", cascade = CascadeType.ALL)
     private List<Product> products;
 }

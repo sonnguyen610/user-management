@@ -38,6 +38,9 @@ public class Product extends BaseEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "created_by")
+    private String createdBy;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;

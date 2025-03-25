@@ -20,4 +20,6 @@ public class CategoryRequestDTO {
     private Boolean status;
 
     private String description;
+
+    private String createdBy;
 }

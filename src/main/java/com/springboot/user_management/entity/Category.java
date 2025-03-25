@@ -32,6 +32,9 @@ public class Category extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "created_by")
+    private String createdBy;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products;
 }

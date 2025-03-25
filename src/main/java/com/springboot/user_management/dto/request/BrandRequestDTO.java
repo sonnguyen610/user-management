@@ -20,4 +20,6 @@ public class BrandRequestDTO {
     private Boolean status;
 
     private String description;
+
+    private String createdBy;
 }
