@@ -12,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "select * from product where status = true", nativeQuery = true)
     List<Product> findAllByStatusIsTrue();
+
+    boolean existsByName(String name);
 }

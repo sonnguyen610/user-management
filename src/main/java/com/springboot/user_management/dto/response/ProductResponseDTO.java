@@ -38,7 +38,6 @@ public class ProductResponseDTO {
     public static class CategotyDTO {
         Integer id;
         String name;
-        String code;
     }
 
     @Getter
@@ -48,6 +47,5 @@ public class ProductResponseDTO {
     public static class BrandDTO {
         Integer id;
         String name;
-        String code;
     }
 }

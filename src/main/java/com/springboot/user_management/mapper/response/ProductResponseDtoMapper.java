@@ -28,7 +28,7 @@ public interface ProductResponseDtoMapper extends MapStructMapper<Product, Produ
         if (category == null) {
             return null;
         }
-        return new ProductResponseDTO.CategotyDTO(category.getId(), category.getName(), category.getCode());
+        return new ProductResponseDTO.CategotyDTO(category.getId(), category.getName());
     }
 
     @Named("getBrandDTO")
@@ -36,6 +36,6 @@ public interface ProductResponseDtoMapper extends MapStructMapper<Product, Produ
         if (brand == null) {
             return null;
         }
-        return new ProductResponseDTO.BrandDTO(brand.getId(), brand.getName(), brand.getCode());
+        return new ProductResponseDTO.BrandDTO(brand.getId(), brand.getName());
     }
 }

@@ -11,5 +11,5 @@ import java.util.List;
 public interface ProductService {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct();
 
-    ResponseEntity<BaseResponse<ProductRequestDTO>> createProduct(ProductRequestDTO dto);
+    ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
 }

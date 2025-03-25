@@ -22,17 +22,28 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResponseEntity<BaseResponse<Category>> createCategory(CategoryRequestDTO dto) {
         try {
-            if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            String name = dto.getName() != null ? dto.getName().trim() : null;
+            String code = dto.getCode() != null ? dto.getCode().trim() : null;
+
+            if (name == null || name.isEmpty()) {
                 throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
             }
 
-            if (dto.getCode() == null || dto.getCode().trim().isEmpty()) {
+            if (code == null || code.isEmpty()) {
                 throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
+            }
+
+            if (categoryRepository.existsByName(name)) {
+                throw new BadRequestException(FailureMessage.NAME_EXISTS);
+            }
+
+            if (categoryRepository.existsByCode(code)) {
+                throw new BadRequestException(FailureMessage.CODE_EXISTS);
             }
 
             Category category = new Category();
-            category.setName(dto.getName());
-            category.setCode(dto.getCode());
+            category.setName(name);
+            category.setCode(code);
             category.setDescription(dto.getDescription());
             category.setCreatedBy(dto.getCreatedBy());
             category.setStatus(true);

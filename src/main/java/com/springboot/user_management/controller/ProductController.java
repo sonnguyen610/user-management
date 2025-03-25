@@ -19,5 +19,5 @@ public interface ProductController {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> getAllProduct();
 
     @PostMapping
-    ResponseEntity<BaseResponse<ProductRequestDTO>> createProduct(@RequestBody ProductRequestDTO dto);
+    ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO dto);
 }

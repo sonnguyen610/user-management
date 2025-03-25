@@ -23,7 +23,7 @@ public class ProductControllerImpl implements ProductController {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<ProductRequestDTO>> createProduct(ProductRequestDTO dto) {
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto) {
         return productService.createProduct(dto);
     }
 }

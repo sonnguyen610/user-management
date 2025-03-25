@@ -4,7 +4,6 @@ import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.dto.request.BrandRequestDTO;
 import com.springboot.user_management.entity.Brand;
-import com.springboot.user_management.entity.Category;
 import com.springboot.user_management.repository.BrandRepository;
 import com.springboot.user_management.service.BrandService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -23,12 +22,23 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public ResponseEntity<BaseResponse<Brand>> createBrand(BrandRequestDTO dto) {
         try {
-            if (dto.getName() == null || dto.getName().trim().isEmpty()) {
+            String name = dto.getName() != null ? dto.getName().trim() : null;
+            String code = dto.getCode() != null ? dto.getCode().trim() : null;
+
+            if (name == null || name.isEmpty()) {
                 throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
             }
 
-            if (dto.getCode() == null || dto.getCode().trim().isEmpty()) {
+            if (code == null || code.isEmpty()) {
                 throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
+            }
+
+            if (brandRepository.existsByName(name)) {
+                throw new BadRequestException(FailureMessage.NAME_EXISTS);
+            }
+
+            if (brandRepository.existsByCode(code)) {
+                throw new BadRequestException(FailureMessage.CODE_EXISTS);
             }
 
             Brand brand = new Brand();

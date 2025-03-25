@@ -19,11 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductResponseDtoMapper productResponseDtoMapper;
@@ -48,13 +50,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<ProductRequestDTO>> createProduct(ProductRequestDTO dto) {
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto) {
         try {
-            if (dto.getName() == null || dto.getName().trim().isEmpty()) {
-                throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
-            }
+            String name = dto.getName() != null ? dto.getName().trim() : null;
 
-            if (dto.getCode() == null || dto.getCode().trim().isEmpty()) {
+            if (name == null || name.isEmpty()) {
                 throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
             }
 
@@ -70,9 +70,12 @@ public class ProductServiceImpl implements ProductService {
                 throw new BadRequestException(FailureMessage.BRAND_NOT_SELECTED);
             }
 
+            if (productRepository.existsByName(name)) {
+                throw new BadRequestException(FailureMessage.NAME_EXISTS);
+            }
+
             Product product = new Product();
-            product.setName(dto.getName());
-            product.setCode(dto.getCode());
+            product.setName(name);
             product.setDescription(dto.getDescription());
             product.setPrice(dto.getPrice());
             product.setQuantity(dto.getQuantity());
@@ -85,9 +88,16 @@ public class ProductServiceImpl implements ProductService {
             product.setBrand(brand);
 
             productRepository.save(product);
-            return ResponseFactory.success(HttpStatus.OK, null, SuccessMessage.SUCCESS);
+            product.setCode(generateProductCode(brand.getCode(), category.getCode(), product.getId()));
+            productRepository.save(product);
+            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
         }
+    }
+
+    private String generateProductCode(String brandCode, String categoryCode, Integer id) {
+        return String.format("%s-%s-%05d", brandCode, categoryCode, id);
     }
 }
