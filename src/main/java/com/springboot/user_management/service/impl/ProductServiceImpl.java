@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct() {
         try {
-            List<Product> productList = productRepository.findAllByStatusIsTrue();
+            List<Product> productList = productRepository.findAll();
             List<ProductResponseDTO> response = productResponseDtoMapper.toListDTO(productList);
             return ResponseFactory.success(HttpStatus.OK, response, SuccessMessage.SUCCESS);
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
             product.setName(name);
             product.setDescription(dto.getDescription());
             product.setPrice(dto.getPrice());
-            product.setQuantity(dto.getQuantity());
+            product.setQuantity(dto.getQuantity() == null ? 0 : dto.getQuantity());
             product.setStatus(true);
 
             Category category = categoryRepository.getReferenceById(dto.getCategoryId());
