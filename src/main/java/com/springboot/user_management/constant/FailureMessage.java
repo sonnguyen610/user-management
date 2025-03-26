@@ -16,4 +16,6 @@ public class FailureMessage {
     public static final String PRODUCT_NOT_FOUND = "Product not found!";
     public static final String CATEGORY_NOT_FOUND = "Category not found!";
     public static final String BRAND_NOT_FOUND = "Brand not found!";
+    public static final String NOT_BLANK_VALUE = "Value cannot be blank!";
+    public static final String INVALID_VALUE = "Invalid value!";
 }
