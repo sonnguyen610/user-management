@@ -7,13 +7,14 @@ import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductService {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct();
 
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
 
-    ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto);
-
     ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id);
+
+    Map<String, String> validateProduct(ProductRequestDTO dto);
 }

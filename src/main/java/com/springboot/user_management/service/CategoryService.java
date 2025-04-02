@@ -7,9 +7,12 @@ import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CategoryService {
     ResponseEntity<BaseResponse<List<CategoryResponseDTO>>> findAllCategory();
 
     ResponseEntity<BaseResponse<Category>> createCategory(CategoryRequestDTO dto);
+
+    Map<String, String> validateCategory(CategoryRequestDTO dto);
 }
