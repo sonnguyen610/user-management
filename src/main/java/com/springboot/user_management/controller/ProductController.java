@@ -5,6 +5,7 @@ import com.springboot.user_management.dto.response.ProductResponseDTO;
 import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +17,8 @@ public interface ProductController {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> getAllProduct();
 
     @PostMapping
-    ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO dto);
+    ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO dto, BindingResult bindingResult);
 
-    @PutMapping("/{id}")
-    ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(@PathVariable Integer id,
-                                                                 @RequestBody ProductRequestDTO dto);
 
     @GetMapping("/{id}")
     ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(@PathVariable Integer id);

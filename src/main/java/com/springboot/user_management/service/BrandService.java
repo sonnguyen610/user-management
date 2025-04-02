@@ -7,9 +7,12 @@ import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BrandService {
     ResponseEntity<BaseResponse<List<BrandResponseDTO>>> findAllBrand();
 
     ResponseEntity<BaseResponse<Brand>> createBrand(BrandRequestDTO dto);
+
+    Map<String, String> validateBrand(BrandRequestDTO dto);
 }
