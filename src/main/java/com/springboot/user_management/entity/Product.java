@@ -33,7 +33,7 @@ public class Product extends BaseEntity {
     private String description;
 
     @Column(name = "price")
-    private BigDecimal price;
+    private Integer price;
 
     @Column(name = "quantity")
     private Integer quantity;

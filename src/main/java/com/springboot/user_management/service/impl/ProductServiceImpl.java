@@ -2,6 +2,7 @@ package com.springboot.user_management.service.impl;
 
 import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
+import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.dto.request.ProductRequestDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
 import com.springboot.user_management.entity.Brand;
@@ -22,7 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -52,96 +56,23 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto) {
         try {
-            String name = dto.getName() != null ? dto.getName().trim() : null;
-
-            if (name == null || name.isEmpty()) {
-                throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
-            }
-
-            if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new BadRequestException(FailureMessage.PRODUCT_PRICE_ERROR);
-            }
-
-            if (dto.getCategoryId() == null || !categoryRepository.existsByIdAndStatusIsTrue(dto.getCategoryId())) {
-                throw new BadRequestException(FailureMessage.CATEGORY_NOT_SELECTED);
-            }
-
-            if (dto.getBrandId() == null || !brandRepository.existsByIdAndStatusIsTrue(dto.getBrandId())) {
-                throw new BadRequestException(FailureMessage.BRAND_NOT_SELECTED);
-            }
-
-            if (productRepository.existsByName(name)) {
-                throw new BadRequestException(FailureMessage.NAME_EXISTS);
-            }
+            dto.trimFields();
 
             Product product = new Product();
-            product.setName(name);
+            product.setName(dto.getName());
             product.setDescription(dto.getDescription());
             product.setPrice(dto.getPrice());
             product.setQuantity(dto.getQuantity() == null ? 0 : dto.getQuantity());
             product.setStatus(true);
 
-            Category category = categoryRepository.getReferenceById(dto.getCategoryId());
+            Category category = categoryRepository.getReferenceById(dto.getCategory());
             product.setCategory(category);
 
-            Brand brand = brandRepository.getReferenceById(dto.getBrandId());
+            Brand brand = brandRepository.getReferenceById(dto.getBrand());
             product.setBrand(brand);
 
             productRepository.save(product);
             product.setCode(generateProductCode(brand.getCode(), category.getCode(), product.getId()));
-            productRepository.save(product);
-            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
-            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
-        } catch (Exception e) {
-            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
-        }
-    }
-
-    @Override
-    public ResponseEntity<BaseResponse<ProductResponseDTO>> editProduct(Integer id, ProductRequestDTO dto) {
-        try {
-            String name = dto.getName() != null ? dto.getName().trim() : null;
-
-            if (!productRepository.existsById(id)) {
-                throw new BadRequestException(FailureMessage.PRODUCT_NOT_FOUND);
-            }
-
-            if (name == null || name.isEmpty()) {
-                throw new BadRequestException(FailureMessage.NOT_BLANK_FIELD);
-            }
-
-            if (productRepository.existsByNameAndIdNot(name, id)) {
-                throw new BadRequestException(FailureMessage.NAME_EXISTS);
-            }
-
-            if (dto.getPrice() == null || dto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new BadRequestException(FailureMessage.PRODUCT_PRICE_ERROR);
-            }
-
-            Product product = productRepository.getReferenceById(id);
-            product.setName(name);
-            product.setPrice(dto.getPrice());
-            product.setQuantity(dto.getQuantity() == null ? product.getQuantity() : dto.getQuantity());
-            product.setDescription(dto.getDescription() == null ? product.getDescription() : dto.getDescription());
-
-            if (dto.getCategoryId() != null) {
-                if (!categoryRepository.existsByIdAndStatusIsTrue(dto.getCategoryId())) {
-                    throw new BadRequestException(FailureMessage.CATEGORY_NOT_FOUND);
-                }
-
-                Category category = categoryRepository.getReferenceById(dto.getCategoryId());
-                product.setCategory(category);
-            }
-
-            if (dto.getBrandId() != null) {
-                if (!brandRepository.existsByIdAndStatusIsTrue(dto.getBrandId())) {
-                    throw new BadRequestException(FailureMessage.BRAND_NOT_FOUND);
-                }
-
-                Brand brand = brandRepository.getReferenceById(dto.getBrandId());
-                product.setBrand(brand);
-            }
-
             productRepository.save(product);
             ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
             return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
@@ -163,6 +94,26 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
         }
+    }
+
+    @Override
+    public Map<String, String> validateProduct(ProductRequestDTO dto) {
+        dto.trimFields();
+        Map<String, String> errors = new HashMap<>();
+
+        if (dto.getName() != null && productRepository.existsByName(dto.getName())) {
+            errors.put("name", ValidationMessage.NAME_EXISTS);
+        }
+
+        if (dto.getCategory() != null && !categoryRepository.existsByIdAndStatusIsTrue(dto.getCategory())) {
+            errors.put("brand", ValidationMessage.CATEGORY_NOT_EXISTS);
+        }
+
+        if (dto.getBrand() != null && !brandRepository.existsByIdAndStatusIsTrue(dto.getBrand())) {
+            errors.put("brand", ValidationMessage.BRAND_NOT_EXISTS);
+        }
+
+        return errors;
     }
 
     private String generateProductCode(String brandCode, String categoryCode, Integer id) {
