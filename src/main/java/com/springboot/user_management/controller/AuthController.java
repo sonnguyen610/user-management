@@ -5,6 +5,7 @@ import com.springboot.user_management.entity.User;
 import com.springboot.user_management.utils.BaseResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,5 +14,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface AuthController {
 
     @PostMapping("/register")
-    ResponseEntity<BaseResponse<User>> register(@Valid @RequestBody UserRegisterRequestDTO dto);
+    ResponseEntity<BaseResponse<User>> register(@Valid @RequestBody UserRegisterRequestDTO dto, BindingResult bindingResult);
 }
