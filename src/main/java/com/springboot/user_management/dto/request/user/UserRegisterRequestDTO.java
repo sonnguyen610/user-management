@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -44,8 +42,6 @@ public class UserRegisterRequestDTO {
             message = "Password không hợp lệ!"
     )
     private String password;
-
-    private List<Integer> roles;
 
     public void trimFields() {
         if (this.username != null) {
