@@ -51,4 +51,33 @@ public class ProductControllerImpl implements ProductController {
     public ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id) {
         return productService.viewProduct(id);
     }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> changeStatus(Integer id, Boolean status) {
+        return productService.changeStatus(id, status);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> updateProduct(Integer id, ProductRequestDTO dto, BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(error -> {
+                errors.put(error.getField(), error.getDefaultMessage());
+            });
+        }
+
+        errors.putAll(productService.validateProduct(dto));
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors, ValidationMessage.VALIDATION_FAILED);
+        }
+
+        return productService.updateProduct(id, dto);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> deleteProduct(List<Integer> ids) {
+        return productService.deleteProducts(ids);
+    }
 }

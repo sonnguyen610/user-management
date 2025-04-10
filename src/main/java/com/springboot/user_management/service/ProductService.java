@@ -2,7 +2,6 @@ package com.springboot.user_management.service;
 
 import com.springboot.user_management.dto.request.ProductRequestDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
-import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +14,12 @@ public interface ProductService {
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
 
     ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(Integer id);
+
+    ResponseEntity<BaseResponse<ProductResponseDTO>> changeStatus(Integer id, Boolean status);
+
+    ResponseEntity<BaseResponse<ProductResponseDTO>> updateProduct(Integer id, ProductRequestDTO dto);
+
+    ResponseEntity<BaseResponse<ProductResponseDTO>> deleteProducts(List<Integer> ids);
 
     Map<String, String> validateProduct(ProductRequestDTO dto);
 }

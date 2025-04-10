@@ -22,17 +22,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductResponseDtoMapper productResponseDtoMapper;
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -63,7 +63,6 @@ public class ProductServiceImpl implements ProductService {
             product.setDescription(dto.getDescription());
             product.setPrice(dto.getPrice());
             product.setQuantity(dto.getQuantity() == null ? 0 : dto.getQuantity());
-            product.setStatus(true);
 
             Category category = categoryRepository.getReferenceById(dto.getCategory());
             product.setCategory(category);
@@ -97,6 +96,74 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> changeStatus(Integer id, Boolean status) {
+        try {
+            if (!productRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.DATA_NOT_FOUND);
+            }
+
+            Product product = productRepository.getReferenceById(id);
+            product.setStatus(status);
+            product.setOriginalStatus(status);
+            productRepository.save(product);
+            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.STATUS_CHANGED);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> updateProduct(Integer id, ProductRequestDTO dto) {
+        try {
+            if (!productRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.DATA_NOT_FOUND);
+            }
+
+            if (productRepository.existsByNameAndIdNot(dto.getName(), id)) {
+                throw new BadRequestException(ValidationMessage.NAME_EXISTS);
+            }
+
+            Product product = productRepository.getReferenceById(id);
+            if (!product.getStatus()) {
+                throw new BadRequestException(FailureMessage.PRODUCT_INACTIVATED);
+            }
+
+            product.setName(dto.getName());
+            product.setDescription(dto.getDescription());
+            product.setPrice(dto.getPrice());
+            if (!Objects.equals(product.getBrand().getId(), dto.getBrand())) {
+                Brand brand = brandRepository.getReferenceById(dto.getBrand());
+                product.setBrand(brand);
+            }
+            if (!Objects.equals(product.getCategory().getId(), dto.getCategory())) {
+                Category category = categoryRepository.getReferenceById(dto.getCategory());
+                product.setCategory(category);
+            }
+            productRepository.save(product);
+            ProductResponseDTO responseDTO = productResponseDtoMapper.toDTO(product);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.DATA_UPDATED);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponseDTO>> deleteProducts(List<Integer> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                throw new BadRequestException(FailureMessage.PRODUCT_LIST_NOT_SELECTED);
+            }
+
+            List<Product> productList = productRepository.findAllByIds(ids);
+            productRepository.deleteAll(productList);
+            return ResponseFactory.success(HttpStatus.OK, null, SuccessMessage.DELETE_SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
     public Map<String, String> validateProduct(ProductRequestDTO dto) {
         dto.trimFields();
         Map<String, String> errors = new HashMap<>();
@@ -106,11 +173,11 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (dto.getCategory() != null && !categoryRepository.existsByIdAndStatusIsTrue(dto.getCategory())) {
-            errors.put("brand", ValidationMessage.CATEGORY_NOT_EXISTS);
+            errors.put("brand", ValidationMessage.CATEGORY_NOT_EXISTS_OR_INACTIVATED);
         }
 
         if (dto.getBrand() != null && !brandRepository.existsByIdAndStatusIsTrue(dto.getBrand())) {
-            errors.put("brand", ValidationMessage.BRAND_NOT_EXISTS);
+            errors.put("brand", ValidationMessage.BRAND_NOT_EXISTS_OR_INACTIVATED);
         }
 
         return errors;

@@ -16,4 +16,7 @@ public class FailureMessage {
     public static final String PRODUCT_NOT_FOUND = "Product not found!";
     public static final String CATEGORY_NOT_FOUND = "Category not found!";
     public static final String BRAND_NOT_FOUND = "Brand not found!";
+    public static final String PRODUCT_LIST_NOT_SELECTED = "Product list not selected!";
+    public static final String DATA_NOT_FOUND = "Data not found!";
+    public static final String PRODUCT_INACTIVATED = "Cannot update, product has been inactivated!";
 }

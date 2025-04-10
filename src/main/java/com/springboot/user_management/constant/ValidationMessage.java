@@ -12,6 +12,6 @@ public class ValidationMessage {
     public static final String PRICE_MAX_VALUE = "Price must be at least 500!";
     public static final String CATEGORY_NOT_SELECTED = "Please select a category!";
     public static final String BRAND_NOT_SELECTED = "Please select a brand!";
-    public static final String CATEGORY_NOT_EXISTS = "Category not exists!";
-    public static final String BRAND_NOT_EXISTS = "Brand not exists!";
+    public static final String CATEGORY_NOT_EXISTS_OR_INACTIVATED = "Category not exists or inactivated!";
+    public static final String BRAND_NOT_EXISTS_OR_INACTIVATED = "Brand not exists or inactivated!";
 }

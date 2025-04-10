@@ -6,11 +6,14 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.dto.request.CategoryRequestDTO;
 import com.springboot.user_management.dto.response.CategoryResponseDTO;
 import com.springboot.user_management.entity.Category;
+import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.mapper.response.CategoryResponseDtoMapper;
 import com.springboot.user_management.repository.CategoryRepository;
+import com.springboot.user_management.repository.ProductRepository;
 import com.springboot.user_management.service.CategoryService;
 import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -29,6 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public ResponseEntity<BaseResponse<List<CategoryResponseDTO>>> findAllCategory() {
@@ -42,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<Category>> createCategory(CategoryRequestDTO dto) {
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> createCategory(CategoryRequestDTO dto) {
         try {
             dto.trimFields();
 
@@ -53,7 +60,89 @@ public class CategoryServiceImpl implements CategoryService {
             category.setCreatedBy(dto.getCreatedBy());
             category.setStatus(true);
             categoryRepository.save(category);
-            return ResponseFactory.success(HttpStatus.OK, category, SuccessMessage.SUCCESS);
+            CategoryResponseDTO responseDTO = categoryResponseDtoMapper.toDTO(category);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> changeStatus(Integer id, Boolean status) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.DATA_NOT_FOUND);
+            }
+
+            Category category = categoryRepository.getReferenceById(id);
+            List<Product> productList = category.getProducts();
+
+            if (!productList.isEmpty()) {
+                if (status) {
+                    productList.forEach(product -> product.setStatus(product.getOriginalStatus()));
+                } else {
+                    productList.forEach(product -> product.setOriginalStatus(product.getStatus()));
+                }
+            }
+
+            categoryRepository.save(category);
+            productRepository.saveAll(productList);
+            CategoryResponseDTO responseDTO = categoryResponseDtoMapper.toDTO(category);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.STATUS_CHANGED);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> updateCategory(Integer id, CategoryRequestDTO dto) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.DATA_NOT_FOUND);
+            }
+
+            if (categoryRepository.existsByNameAndIdNot(dto.getName(), id)) {
+                throw new BadRequestException(ValidationMessage.NAME_EXISTS);
+            }
+
+            Category category = categoryRepository.getReferenceById(id);
+            List<Product> productList = category.getProducts();
+            if (!category.getStatus()) {
+                throw new BadRequestException(FailureMessage.PRODUCT_INACTIVATED);
+            }
+
+            category.setName(dto.getName());
+            category.setDescription(dto.getDescription());
+            if (!Objects.equals(category.getCode(), dto.getCode())) {
+                if (!productList.isEmpty()) {
+                    productList.forEach(product ->
+                            product.setCode(product.getCode().replace(category.getCode(), dto.getCode()))
+                    );
+                }
+
+                category.setCode(dto.getCode());
+            }
+            productRepository.saveAll(productList);
+            categoryRepository.save(category);
+            CategoryResponseDTO responseDTO = categoryResponseDtoMapper.toDTO(category);
+            return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.DATA_UPDATED);
+        } catch (Exception e) {
+            return ResponseFactory.success(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> deleteCategory(Integer id) {
+        try {
+            if (!categoryRepository.existsById(id)) {
+                throw new BadRequestException(FailureMessage.DATA_NOT_FOUND);
+            }
+
+            Category category = categoryRepository.getReferenceById(id);
+            List<Product> productList = category.getProducts();
+            productRepository.deleteAll(productList);
+            categoryRepository.delete(category);
+            return ResponseFactory.success(HttpStatus.OK, null, SuccessMessage.DELETE_SUCCESS);
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
         }

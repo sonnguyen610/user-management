@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public interface ProductController {
 
     @GetMapping
@@ -19,7 +19,15 @@ public interface ProductController {
     @PostMapping
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO dto, BindingResult bindingResult);
 
-
     @GetMapping("/{id}")
     ResponseEntity<BaseResponse<ProductResponseDTO>> viewProduct(@PathVariable Integer id);
+
+    @PutMapping("/{id}/change-status")
+    ResponseEntity<BaseResponse<ProductResponseDTO>> changeStatus(@PathVariable Integer id, @RequestParam Boolean status);
+
+    @PutMapping("/{id}")
+    ResponseEntity<BaseResponse<ProductResponseDTO>> updateProduct(@PathVariable Integer id, @RequestBody ProductRequestDTO dto, BindingResult bindingResult);
+
+    @DeleteMapping
+    ResponseEntity<BaseResponse<ProductResponseDTO>> deleteProduct(@RequestParam List<Integer> ids);
 }

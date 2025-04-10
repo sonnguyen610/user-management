@@ -4,7 +4,6 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.BrandController;
 import com.springboot.user_management.dto.request.BrandRequestDTO;
 import com.springboot.user_management.dto.response.BrandResponseDTO;
-import com.springboot.user_management.entity.Brand;
 import com.springboot.user_management.exception.ValidationException;
 import com.springboot.user_management.service.BrandService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -28,7 +27,7 @@ public class BrandControllerImpl implements BrandController {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<Brand>> createBrand(BrandRequestDTO dto, BindingResult bindingResult) {
+    public ResponseEntity<BaseResponse<BrandResponseDTO>> createBrand(BrandRequestDTO dto, BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
 
         if (bindingResult.hasErrors()) {
@@ -44,5 +43,34 @@ public class BrandControllerImpl implements BrandController {
         }
 
         return brandService.createBrand(dto);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<BrandResponseDTO>> changeStatus(Integer id, Boolean status) {
+        return brandService.changeStatus(id, status);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<BrandResponseDTO>> updateBrand(Integer id, BrandRequestDTO dto, BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(error -> {
+                errors.put(error.getField(), error.getDefaultMessage());
+            });
+        }
+
+        errors.putAll(brandService.validateBrand(dto));
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors, ValidationMessage.VALIDATION_FAILED);
+        }
+
+        return brandService.updateBrand(id, dto);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<BrandResponseDTO>> deleteBrand(Integer id) {
+        return brandService.deleteBrand(id);
     }
 }
