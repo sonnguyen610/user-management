@@ -19,4 +19,9 @@ public class UserControllerImpl implements UserController {
     public ResponseEntity<BaseResponse<List<User>>> getAllUser() {
         return userService.findAllUser();
     }
+
+    @Override
+    public ResponseEntity<BaseResponse<List<String>>> getAllUsername(String name) {
+        return userService.getAllUsername(name);
+    }
 }

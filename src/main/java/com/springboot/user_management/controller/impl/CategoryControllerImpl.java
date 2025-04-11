@@ -4,6 +4,7 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.CategoryController;
 import com.springboot.user_management.dto.request.CategoryRequestDTO;
 import com.springboot.user_management.dto.response.CategoryResponseDTO;
+import com.springboot.user_management.dto.response.paging.CategoryResponsePagingDTO;
 import com.springboot.user_management.exception.ValidationException;
 import com.springboot.user_management.service.CategoryService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -24,6 +25,11 @@ public class CategoryControllerImpl implements CategoryController {
     @Override
     public ResponseEntity<BaseResponse<List<CategoryResponseDTO>>> getAllCategory() {
         return categoryService.findAllCategory();
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponsePagingDTO>> getAllCategoryByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        return categoryService.getAllCategoryByConditions(name, createdBy, status, date, page, size);
     }
 
     @Override

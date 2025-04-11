@@ -5,6 +5,8 @@ import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.dto.request.ProductRequestDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
+import com.springboot.user_management.dto.response.paging.Metadata;
+import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
 import com.springboot.user_management.entity.Brand;
 import com.springboot.user_management.entity.Category;
 import com.springboot.user_management.entity.Product;
@@ -17,6 +19,10 @@ import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -48,6 +55,19 @@ public class ProductServiceImpl implements ProductService {
             List<Product> productList = productRepository.findAll();
             List<ProductResponseDTO> response = productResponseDtoMapper.toListDTO(productList);
             return ResponseFactory.success(HttpStatus.OK, response, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        try {
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Product> productPage = productRepository.findAllByConditions(name, createdBy, status, date, pageable);
+            List<ProductResponseDTO> responseDTOList = productPage.getContent().stream().map(productResponseDtoMapper::toDTO).collect(Collectors.toList());
+            ProductResponsePagingDTO responsePagingDTO = new ProductResponsePagingDTO(Metadata.build(productPage), responseDTOList);
+            return ResponseFactory.success(HttpStatus.OK, responsePagingDTO, SuccessMessage.SUCCESS);
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
         }

@@ -4,6 +4,7 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.BrandController;
 import com.springboot.user_management.dto.request.BrandRequestDTO;
 import com.springboot.user_management.dto.response.BrandResponseDTO;
+import com.springboot.user_management.dto.response.paging.BrandResponsePagingDTO;
 import com.springboot.user_management.exception.ValidationException;
 import com.springboot.user_management.service.BrandService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -24,6 +25,11 @@ public class BrandControllerImpl implements BrandController {
     @Override
     public ResponseEntity<BaseResponse<List<BrandResponseDTO>>> getAllBrand() {
         return brandService.findAllBrand();
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<BrandResponsePagingDTO>> getAllBrandByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        return brandService.getAllBrandByConditions(name, createdBy, status, date, page, size);
     }
 
     @Override

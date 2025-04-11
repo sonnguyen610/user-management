@@ -2,6 +2,7 @@ package com.springboot.user_management.service;
 
 import com.springboot.user_management.dto.request.ProductRequestDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
+import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
 import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -10,6 +11,8 @@ import java.util.Map;
 
 public interface ProductService {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct();
+
+    ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size);
 
     ResponseEntity<BaseResponse<ProductResponseDTO>> createProduct(ProductRequestDTO dto);
 

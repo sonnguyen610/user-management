@@ -4,7 +4,13 @@ import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.dto.request.CategoryRequestDTO;
+import com.springboot.user_management.dto.response.BrandResponseDTO;
 import com.springboot.user_management.dto.response.CategoryResponseDTO;
+import com.springboot.user_management.dto.response.paging.BrandResponsePagingDTO;
+import com.springboot.user_management.dto.response.paging.CategoryResponsePagingDTO;
+import com.springboot.user_management.dto.response.paging.Metadata;
+import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
+import com.springboot.user_management.entity.Brand;
 import com.springboot.user_management.entity.Category;
 import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.mapper.response.CategoryResponseDtoMapper;
@@ -15,6 +21,9 @@ import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -45,6 +55,19 @@ public class CategoryServiceImpl implements CategoryService {
             return ResponseFactory.success(HttpStatus.OK, response, SuccessMessage.SUCCESS);
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponsePagingDTO>> getAllCategoryByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        try {
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Category> categoryPage = categoryRepository.findAllByConditions(name, createdBy, status, date, pageable);
+            List<CategoryResponseDTO> responseDTOList = categoryPage.getContent().stream().map(categoryResponseDtoMapper::toDTO).collect(Collectors.toList());
+            CategoryResponsePagingDTO responsePagingDTO = new CategoryResponsePagingDTO(Metadata.build(categoryPage), responseDTOList);
+            return ResponseFactory.success(HttpStatus.OK, responsePagingDTO, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
         }
     }
 

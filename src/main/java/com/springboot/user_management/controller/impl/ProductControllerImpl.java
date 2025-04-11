@@ -4,6 +4,7 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.ProductController;
 import com.springboot.user_management.dto.request.ProductRequestDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
+import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
 import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.exception.ValidationException;
 import com.springboot.user_management.service.ProductService;
@@ -25,6 +26,11 @@ public class ProductControllerImpl implements ProductController {
     @Override
     public ResponseEntity<BaseResponse<List<ProductResponseDTO>>> getAllProduct() {
         return productService.findAllProduct();
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        return productService.getAllProductByConditions(name, createdBy, status, date, page, size);
     }
 
     @Override
