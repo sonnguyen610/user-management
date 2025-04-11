@@ -28,4 +28,14 @@ public class UserServiceImpl implements UserService {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
         }
     }
+
+    @Override
+    public ResponseEntity<BaseResponse<List<String>>> getAllUsername(String name) {
+        try {
+            List<String> usernameList = userRepository.findAllUsernameByName(name);
+            return ResponseFactory.success(HttpStatus.OK, usernameList, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
+        }
+    }
 }
