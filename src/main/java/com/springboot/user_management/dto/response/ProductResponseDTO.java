@@ -27,7 +27,7 @@ public class ProductResponseDTO {
 
     private Boolean status;
 
-    private CategotyDTO category;
+    private CategoryDTO category;
 
     private BrandDTO brand;
 
@@ -35,7 +35,7 @@ public class ProductResponseDTO {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CategotyDTO {
+    public static class CategoryDTO {
         Integer id;
         String name;
     }
