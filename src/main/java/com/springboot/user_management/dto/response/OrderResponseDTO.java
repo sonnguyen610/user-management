@@ -25,7 +25,7 @@ public class OrderResponseDTO {
     private Integer id;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime orderDate;
+    private LocalDateTime createdAt;
 
     private OrderStatus status;
 

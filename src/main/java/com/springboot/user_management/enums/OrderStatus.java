@@ -4,16 +4,24 @@ import lombok.Getter;
 
 @Getter
 public enum OrderStatus {
-    PENDING("pending"),
-    PROCESSING("processing"),
-    SHIPPED("shipped"),
-    COMPLETED("completed"),
-    CANCELLED("cancelled"),
-    PARTIALLY_COMPLETED("partially completed");
+    // đợi xác thực
+    PENDING,
 
-    private final String type;
+    // đã xác nhận
+    CONFIRMED,
 
-    OrderStatus(String type) {
-        this.type = type;
-    }
+    // đang giao
+    SHIPPED,
+
+    // đã giao xong
+    DELIVERED,
+
+    // hoàn tất
+    COMPLETED,
+
+    // huỷ bỏ
+    CANCELLED,
+
+    // giao được một phần
+    PARTIALLY_COMPLETED;
 }

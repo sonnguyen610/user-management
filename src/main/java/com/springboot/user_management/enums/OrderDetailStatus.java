@@ -4,14 +4,18 @@ import lombok.Getter;
 
 @Getter
 public enum OrderDetailStatus {
-    AVAILABLE("available"),
-    SHIPPED("shipped"),
-    RETURNED("returned"),
-    CANCELLED("cancelled");
+    // đợi xác thực
+    PENDING,
 
-    private final String type;
+    // đang giao
+    SHIPPED,
 
-    OrderDetailStatus(String type) {
-        this.type = type;
-    }
+    // hoàn tất
+    COMPLETED,
+
+    //trả hàng
+    RETURNED,
+
+    // huỷ bỏ
+    CANCELLED;
 }

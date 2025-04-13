@@ -93,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
                 orderDetail.setQuantity(productDTO.getQuantity());
                 orderDetail.setCustomerOrder(customerOrder);
                 orderDetail.setProduct(product);
-                orderDetail.setStatus(OrderDetailStatus.AVAILABLE);
+                orderDetail.setStatus(OrderDetailStatus.PENDING);
                 orderDetail.setPrice(product.getPrice());
                 orderDetail.setTotal(orderDetail.getQuantity() *orderDetail.getPrice());
                 orderDetailList.add(orderDetail);

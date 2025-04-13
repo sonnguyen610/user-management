@@ -19,16 +19,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerOrder {
+public class CustomerOrder extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @CreationTimestamp
-    private LocalDateTime orderDate;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
