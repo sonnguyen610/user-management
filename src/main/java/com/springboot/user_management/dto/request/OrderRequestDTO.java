@@ -32,6 +32,8 @@ public class OrderRequestDTO {
     @Size(min = 1, message = ValidationMessage.PRODUCT_NOT_SELECTED)
     private List<ProductDTO> products;
 
+    private String voucher;
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -47,6 +49,9 @@ public class OrderRequestDTO {
         }
         if (this.paymentMethod != null) {
             this.paymentMethod = this.paymentMethod.trim();
+        }
+        if (this.voucher != null) {
+            this.voucher = this.voucher.trim();
         }
     }
 }
