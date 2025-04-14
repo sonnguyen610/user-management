@@ -45,4 +45,7 @@ public class CustomerOrder extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "customerOrder", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
 }

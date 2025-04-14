@@ -40,4 +40,7 @@ public class OrderDetail {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
 }
