@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -32,4 +33,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "and (:status is null or status = :status) " +
             "and created_at >= :date order by created_at desc", nativeQuery = true)
     Page<Product> findAllByConditions(String name, String createdBy, Boolean status, String date, Pageable pageable);
+
+    Optional<Product> findByIdAndStatusIsTrue(Integer id);
 }

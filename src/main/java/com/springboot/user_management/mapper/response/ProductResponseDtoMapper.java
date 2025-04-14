@@ -24,11 +24,11 @@ public interface ProductResponseDtoMapper extends MapStructMapper<Product, Produ
     List<ProductResponseDTO> toListDTO(List<Product> entityList);
 
     @Named("getCategoryDTO")
-    default ProductResponseDTO.CategotyDTO getCategoryDTO(Category category) {
+    default ProductResponseDTO.CategoryDTO getCategoryDTO(Category category) {
         if (category == null) {
             return null;
         }
-        return new ProductResponseDTO.CategotyDTO(category.getId(), category.getName());
+        return new ProductResponseDTO.CategoryDTO(category.getId(), category.getName());
     }
 
     @Named("getBrandDTO")

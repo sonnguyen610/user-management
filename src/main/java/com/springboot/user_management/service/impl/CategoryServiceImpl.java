@@ -81,7 +81,6 @@ public class CategoryServiceImpl implements CategoryService {
             category.setCode(dto.getCode());
             category.setDescription(dto.getDescription());
             category.setCreatedBy(dto.getCreatedBy());
-            category.setStatus(true);
             categoryRepository.save(category);
             CategoryResponseDTO responseDTO = categoryResponseDtoMapper.toDTO(category);
             return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);

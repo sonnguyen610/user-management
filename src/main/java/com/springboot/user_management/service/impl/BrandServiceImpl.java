@@ -78,7 +78,6 @@ public class BrandServiceImpl implements BrandService {
             brand.setCode(dto.getCode());
             brand.setDescription(dto.getDescription());
             brand.setCreatedBy(dto.getCreatedBy());
-            brand.setStatus(true);
             brandRepository.save(brand);
             BrandResponseDTO responseDTO = brandResponseDtoMapper.toDTO(brand);
             return ResponseFactory.success(HttpStatus.OK, responseDTO, SuccessMessage.SUCCESS);
