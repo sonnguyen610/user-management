@@ -27,7 +27,10 @@ public class Product extends BaseEntity {
     private String code;
 
     @Column(name = "status")
-    private Boolean status;
+    private Boolean status = true;
+
+    @Column(name = "original_status")
+    private Boolean originalStatus = true;
 
     @Column(name = "description")
     private String description;

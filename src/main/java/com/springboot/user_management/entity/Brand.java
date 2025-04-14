@@ -27,7 +27,7 @@ public class Brand extends BaseEntity {
     private String code;
 
     @Column(name = "status")
-    private Boolean status;
+    private Boolean status = true;
 
     @Column(name = "description")
     private String description;

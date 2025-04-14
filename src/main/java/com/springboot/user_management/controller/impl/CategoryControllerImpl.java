@@ -4,7 +4,7 @@ import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.CategoryController;
 import com.springboot.user_management.dto.request.CategoryRequestDTO;
 import com.springboot.user_management.dto.response.CategoryResponseDTO;
-import com.springboot.user_management.entity.Category;
+import com.springboot.user_management.dto.response.paging.CategoryResponsePagingDTO;
 import com.springboot.user_management.exception.ValidationException;
 import com.springboot.user_management.service.CategoryService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -28,7 +28,12 @@ public class CategoryControllerImpl implements CategoryController {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<Category>> createCategory(CategoryRequestDTO dto, BindingResult bindingResult) {
+    public ResponseEntity<BaseResponse<CategoryResponsePagingDTO>> getAllCategoryByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+        return categoryService.getAllCategoryByConditions(name, createdBy, status, date, page, size);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> createCategory(CategoryRequestDTO dto, BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
 
         if (bindingResult.hasErrors()) {
@@ -44,5 +49,34 @@ public class CategoryControllerImpl implements CategoryController {
         }
 
         return categoryService.createCategory(dto);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> changeStatus(Integer id, Boolean status) {
+        return categoryService.changeStatus(id, status);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> updateCategory(Integer id, CategoryRequestDTO dto, BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(error -> {
+                errors.put(error.getField(), error.getDefaultMessage());
+            });
+        }
+
+        errors.putAll(categoryService.validateCategory(dto));
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors, ValidationMessage.VALIDATION_FAILED);
+        }
+
+        return categoryService.updateCategory(id, dto);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<CategoryResponseDTO>> deleteCategory(Integer id) {
+        return categoryService.deleteCategory(id);
     }
 }

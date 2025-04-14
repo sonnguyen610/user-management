@@ -14,6 +14,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select * from user where status = true", nativeQuery = true)
     List<User> findAllByStatusIsTrue();
 
+    @Query(value = "select username from user " +
+            "where :name is null or :name = '' or username like %:name%", nativeQuery = true)
+    List<String > findAllUsernameByName(String name);
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String trim);

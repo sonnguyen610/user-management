@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface UserService {
     ResponseEntity<BaseResponse<List<User>>> findAllUser();
+
+    ResponseEntity<BaseResponse<List<String>>> getAllUsername(String name);
 }
