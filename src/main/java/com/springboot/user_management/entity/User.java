@@ -38,9 +38,6 @@ public class User extends BaseEntity {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "birth_year")
-    private Integer birthYear;
-
     @Column(name = "status")
     private Boolean status;
 
