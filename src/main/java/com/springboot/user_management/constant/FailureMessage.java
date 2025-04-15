@@ -23,4 +23,6 @@ public class FailureMessage {
     public static final String INVALID_VALUE = "Invalid value!";
     public static final String USER_NOT_FOUND = "User info not found!";
     public static final String ACCESS_DENIED = "Access denied!";
+    public static final String MISSING_AUTHORIZATION = "Missing authorization header!";
+    public static final String TOKEN_INVALID = "Token expired or invalid!";
 }
