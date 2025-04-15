@@ -1,6 +1,9 @@
 package com.springboot.user_management.service.impl;
 
+import com.springboot.user_management.constant.Constants;
+import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
+import com.springboot.user_management.dto.request.user.UserLoginRequestDTO;
 import com.springboot.user_management.dto.request.user.UserRegisterRequestDTO;
 import com.springboot.user_management.dto.response.user.UserLoginResponseDTO;
 import com.springboot.user_management.entity.Role;
@@ -8,12 +11,20 @@ import com.springboot.user_management.entity.User;
 import com.springboot.user_management.mapper.response.UserLoginResponseDtoMapper;
 import com.springboot.user_management.repository.RoleRepository;
 import com.springboot.user_management.repository.UserRepository;
+import com.springboot.user_management.securty.JwtFilter;
+import com.springboot.user_management.securty.JwtUtils;
 import com.springboot.user_management.service.AuthService;
 import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +34,14 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class AuthServiceImpl implements AuthService {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Autowired
     private UserRepository userRepository;
@@ -45,9 +64,10 @@ public class AuthServiceImpl implements AuthService {
             newUser.setPhoneNumber(dto.getPhoneNumber());
             newUser.setAddress(dto.getAddress());
             newUser.setStatus(true);
-//            newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+            newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-            Role role = roleRepository.getReferenceById(1);
+            Role role = roleRepository.findByName(Constants.Role.MEMBER)
+                            .orElseThrow(() -> new BadRequestException("Role not found!"));
             newUser.setRoles(new HashSet<>(Collections.singleton(role)));
 
             userRepository.save(newUser);
@@ -59,24 +79,25 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-//    @Override
-//    public ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(UserLoginRequestDTO dto) {
-//        try {
-//            Authentication auth = authManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
-//            UserDetails user = (UserDetails) auth.getPrincipal();
-//
-//            User userInfo = userRepository.findByUsername(user.getUsername())
-//                    .orElseThrow(() -> new BadRequestException(FailureMessage.USER_NOT_FOUND));
-//            UserLoginResponseDTO userDto = userLoginResponseDtoMapper.toDTO(userInfo);
-//            String token = jwtUtils.generateToken(user);
-//            userDto.setToken(token);
-//            userDto.setRoles(userInfo.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-//            return ResponseFactory.success(HttpStatus.OK, userDto, SuccessMessage.SUCCESS);
-//        } catch (Exception e) {
-//            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
-//        }
-//    }
+    @Override
+    public ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(UserLoginRequestDTO dto) {
+        try {
+            Authentication auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+            User user = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new BadRequestException(FailureMessage.USER_NOT_FOUND));
+            UserLoginResponseDTO userDto = userLoginResponseDtoMapper.toDTO(user);
+            String token = jwtUtils.generateToken(user.getUsername(),
+                    user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+            userDto.setToken(token);
+            userDto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+            return ResponseFactory.success(HttpStatus.OK, userDto, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
+        }
+    }
 
     @Override
     public Map<String, String> validateUserRegister(UserRegisterRequestDTO dto) {

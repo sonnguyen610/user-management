@@ -22,4 +22,5 @@ public class FailureMessage {
     public static final String NOT_BLANK_VALUE = "Value cannot be blank!";
     public static final String INVALID_VALUE = "Invalid value!";
     public static final String USER_NOT_FOUND = "User info not found!";
+    public static final String ACCESS_DENIED = "Access denied!";
 }

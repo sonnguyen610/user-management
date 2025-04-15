@@ -2,6 +2,7 @@ package com.springboot.user_management.controller.impl;
 
 import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.controller.AuthController;
+import com.springboot.user_management.dto.request.user.UserLoginRequestDTO;
 import com.springboot.user_management.dto.request.user.UserRegisterRequestDTO;
 import com.springboot.user_management.dto.response.user.UserLoginResponseDTO;
 import com.springboot.user_management.exception.ValidationException;
@@ -39,20 +40,20 @@ public class AuthControllerImpl implements AuthController {
         return authService.register(dto);
     }
 
-//    @Override
-//    public ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(UserLoginRequestDTO dto, BindingResult bindingResult) {
-//        Map<String, String> errors = new HashMap<>();
-//
-//        if (bindingResult.hasErrors()) {
-//            bindingResult.getFieldErrors().forEach(error -> {
-//                errors.put(error.getField(), error.getDefaultMessage());
-//            });
-//        }
-//
-//        if (!errors.isEmpty()) {
-//            throw new ValidationException(errors, ValidationMessage.VALIDATION_FAILED);
-//        }
-//
-//        return authService.login(dto);
-//    }
+    @Override
+    public ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(UserLoginRequestDTO dto, BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getFieldErrors().forEach(error -> {
+                errors.put(error.getField(), error.getDefaultMessage());
+            });
+        }
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException(errors, ValidationMessage.VALIDATION_FAILED);
+        }
+
+        return authService.login(dto);
+    }
 }
