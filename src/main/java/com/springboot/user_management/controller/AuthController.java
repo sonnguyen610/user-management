@@ -18,5 +18,5 @@ public interface AuthController {
     ResponseEntity<BaseResponse<UserLoginResponseDTO>> register(@Valid @RequestBody UserRegisterRequestDTO dto, BindingResult bindingResult);
 
     @PostMapping("/login")
-    ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(@RequestBody UserLoginRequestDTO dto, BindingResult bindingResult);
+    ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(@Valid @RequestBody UserLoginRequestDTO dto, BindingResult bindingResult);
 }
