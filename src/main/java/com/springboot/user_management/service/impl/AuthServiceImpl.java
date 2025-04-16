@@ -1,6 +1,5 @@
 package com.springboot.user_management.service.impl;
 
-import com.springboot.user_management.constant.Constants;
 import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.dto.request.user.UserLoginRequestDTO;
@@ -8,6 +7,7 @@ import com.springboot.user_management.dto.request.user.UserRegisterRequestDTO;
 import com.springboot.user_management.dto.response.user.UserLoginResponseDTO;
 import com.springboot.user_management.entity.Role;
 import com.springboot.user_management.entity.User;
+import com.springboot.user_management.enums.RoleEnum;
 import com.springboot.user_management.mapper.response.UserLoginResponseDtoMapper;
 import com.springboot.user_management.repository.RoleRepository;
 import com.springboot.user_management.repository.UserRepository;
@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
             newUser.setStatus(true);
             newUser.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-            Role role = roleRepository.findByName(Constants.Role.MEMBER)
+            Role role = roleRepository.findByName(RoleEnum.MEMBER.getType())
                             .orElseThrow(() -> new BadRequestException("Role not found!"));
             newUser.setRoles(new HashSet<>(Collections.singleton(role)));
 

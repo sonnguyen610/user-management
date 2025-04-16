@@ -6,7 +6,6 @@ import com.springboot.user_management.dto.response.paging.ProductResponsePagingD
 import com.springboot.user_management.entity.Product;
 import com.springboot.user_management.utils.BaseResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @RequestMapping("/api/products")
 public interface ProductController {
 
-    @PreAuthorize("hasRole('MEMBER')")
     @GetMapping
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> getAllProduct();
 
