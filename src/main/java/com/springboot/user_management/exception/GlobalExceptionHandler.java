@@ -6,6 +6,7 @@ import com.springboot.user_management.utils.ResponseFactory;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -27,5 +28,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public <I>ResponseEntity<BaseResponse<Map<String, String>>> validationExceptionHandler(ValidationException ex) {
         return ResponseFactory.error(HttpStatus.BAD_REQUEST, ex.getDatas(), ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public <I>ResponseEntity<BaseResponse<I>> authorizationDeniedExceptionHandler(AuthorizationDeniedException ex) {
+        return ResponseFactory.error(HttpStatus.FORBIDDEN, null, FailureMessage.ACCESS_DENIED);
     }
 }
