@@ -82,10 +82,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<BaseResponse<UserLoginResponseDTO>> login(UserLoginRequestDTO dto) {
         try {
-            System.out.println("Step 1");
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
-            System.out.println("Step 2");
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
             User user = userRepository.findByUsername(userDetails.getUsername())

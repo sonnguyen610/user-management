@@ -35,4 +35,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findAllByConditions(String name, String createdBy, Boolean status, String date, Pageable pageable);
 
     Optional<Product> findByIdAndStatusIsTrue(Integer id);
+
+    List<Product> findAllByCreatedBy(String createdBy);
 }

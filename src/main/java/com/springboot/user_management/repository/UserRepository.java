@@ -1,6 +1,8 @@
 package com.springboot.user_management.repository;
 
 import com.springboot.user_management.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -23,4 +25,20 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsByEmail(String trim);
 
     Optional<User> findByUsername(String username);
+
+    boolean existsByUsernameAndIdNot(String username, Integer id);
+
+    boolean existsByEmailAndIdNot(String email, Integer id);
+
+    @Query(value = "select distinct u.* from user u " +
+            "join user_roles ur on ur.user_id = u.id " +
+            "join role r on r.id = ur.role_id " +
+            "where u.created_at between :startDate and :endDate " +
+            "and (:username is null or :username = '' or u.username = :username) " +
+            "and (:fullName is null or :fullName = '' or u.full_name = :fullName) " +
+            "and (:role is null or r.name = concat('ROLE_', :role)) " +
+            "and (:status is null or u.status = :status)", nativeQuery = true)
+    Page<User> findAllByConditions(String startDate, String endDate, String username, String fullName, Boolean status, String role, Pageable pageable);
+
+    long countByRoles_NameAndStatusIsTrue(String name);
 }
