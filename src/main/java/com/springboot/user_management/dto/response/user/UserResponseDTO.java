@@ -1,9 +1,11 @@
-package com.springboot.user_management.dto.response;
+package com.springboot.user_management.dto.response.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,7 +25,7 @@ public class UserResponseDTO {
 
     private String address;
 
-    private String password;
-
     private Boolean status;
+
+    private List<String> roles;
 }

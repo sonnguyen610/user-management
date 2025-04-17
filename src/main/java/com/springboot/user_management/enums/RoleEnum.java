@@ -25,4 +25,12 @@ public enum RoleEnum {
                 .map(Enum::name)
                 .collect(Collectors.toList());
     }
+
+    public static String getTypeFromName(String name) {
+        return Arrays.stream(RoleEnum.values())
+                .filter(role -> role.name().equals(name))
+                .map(role -> role.type)
+                .findFirst()
+                .orElse(null);
+    }
 }

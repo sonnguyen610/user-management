@@ -1,5 +1,6 @@
 package com.springboot.user_management.service.impl;
 
+import com.springboot.user_management.config.SecurityUtils;
 import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.constant.ValidationMessage;
@@ -81,10 +82,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<BaseResponse<OrderResponseDTO>> createOrder(OrderRequestDTO dto) {
         try {
+            String username = SecurityUtils.getUsername();
+
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new BadRequestException(FailureMessage.DISABLED_USER));
+
             dto.trimFields();
-
-            User user = userRepository.getReferenceById(1);
-
             CustomerOrder customerOrder = new CustomerOrder();
             customerOrder.setUser(user);
             customerOrder.setStatus(OrderStatus.PENDING);
@@ -94,8 +97,12 @@ public class OrderServiceImpl implements OrderService {
             Integer totalPrice = 0;
             List<OrderDetail> orderDetailList = new ArrayList<>();
             for (OrderRequestDTO.ProductDTO productDTO : dto.getProducts()) {
-                Product product = productRepository.findByIdAndStatusIsTrue(productDTO.getId())
+                Product product = productRepository.findById(productDTO.getId())
                         .orElseThrow(() -> new BadRequestException(FailureMessage.DATA_NOT_FOUND));
+
+                if (!product.getStatus()) {
+                    throw new BadRequestException(FailureMessage.DISABLED_PRODUCT);
+                }
                 if (productDTO.getQuantity() <= 0) {
                     throw new BadRequestException(ValidationMessage.NOT_SELECT_PRODUCT);
                 }

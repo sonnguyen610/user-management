@@ -21,4 +21,6 @@ public class ValidationMessage {
     public static final String INVALID_PAYMENT_METHOD = "Invalid payment method";
     public static final String NOT_SELECT_PRODUCT = "Please select at least 1 product!";
     public static final String OUT_OF_STOCK = "Product already out of stock!";
+    public static final String INCORRECT_PASSWORD = "Incorrect old password!";
+    public static final String DUPLICATE_PASSWORD = "New password cannot be the same as old password!";
 }

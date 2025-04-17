@@ -17,4 +17,7 @@ public class FailureMessage {
     public static final String MISSING_AUTHORIZATION = "Missing authorization header!";
     public static final String TOKEN_INVALID = "Token expired or invalid!";
     public static final String UNAUTHENTICATED_USER = "Unauthenticated user!";
+    public static final String DISABLED_USER = "Your account is already disabled!";
+    public static final String DISABLED_PRODUCT = "This product is already disabled!";
+    public static final String ROLE_NOT_ALLOWED = "Role type not allowed!";
 }
