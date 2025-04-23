@@ -1,6 +1,7 @@
 package com.springboot.user_management.service.impl;
 
 import com.springboot.user_management.config.SecurityUtils;
+import com.springboot.user_management.constant.Constants;
 import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.constant.ValidationMessage;
@@ -10,18 +11,12 @@ import com.springboot.user_management.dto.response.OrderResponseDTO;
 import com.springboot.user_management.dto.response.paging.Metadata;
 import com.springboot.user_management.dto.response.paging.OrderResponsePagingDTO;
 import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
-import com.springboot.user_management.entity.CustomerOrder;
-import com.springboot.user_management.entity.OrderDetail;
-import com.springboot.user_management.entity.Product;
-import com.springboot.user_management.entity.User;
+import com.springboot.user_management.entity.*;
 import com.springboot.user_management.enums.OrderDetailStatus;
 import com.springboot.user_management.enums.OrderStatus;
 import com.springboot.user_management.enums.PaymentMethod;
 import com.springboot.user_management.mapper.response.OrderResponseDtoMapper;
-import com.springboot.user_management.repository.CustomerOrderRepository;
-import com.springboot.user_management.repository.OrderDetailRepository;
-import com.springboot.user_management.repository.ProductRepository;
-import com.springboot.user_management.repository.UserRepository;
+import com.springboot.user_management.repository.*;
 import com.springboot.user_management.service.OrderService;
 import com.springboot.user_management.service.VoucherService;
 import com.springboot.user_management.utils.BaseResponse;
@@ -64,6 +59,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private VoucherService voucherService;
 
+    @Autowired
+    private CartRepository cartRepository;
+
     @Override
     public ResponseEntity<BaseResponse<OrderResponseDTO>> viewOrderById(Integer id) {
         try {
@@ -84,8 +82,9 @@ public class OrderServiceImpl implements OrderService {
         try {
             String username = SecurityUtils.getUsername();
 
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new BadRequestException(FailureMessage.DISABLED_USER));
+            User user = userRepository.findUserByUsername(username);
+
+            List<ProductDTO> productList = getProductListByOrderRequest(dto, user.getId());
 
             dto.trimFields();
             CustomerOrder customerOrder = new CustomerOrder();
@@ -96,22 +95,10 @@ public class OrderServiceImpl implements OrderService {
 
             Integer totalPrice = 0;
             List<OrderDetail> orderDetailList = new ArrayList<>();
-            for (OrderRequestDTO.ProductDTO productDTO : dto.getProducts()) {
-                Product product = productRepository.findById(productDTO.getId())
-                        .orElseThrow(() -> new BadRequestException(FailureMessage.DATA_NOT_FOUND));
-
-                if (!product.getStatus()) {
-                    throw new BadRequestException(FailureMessage.DISABLED_PRODUCT);
-                }
-                if (productDTO.getQuantity() <= 0) {
-                    throw new BadRequestException(ValidationMessage.NOT_SELECT_PRODUCT);
-                }
-                if (productDTO.getQuantity() > product.getQuantity()) {
-                    throw new BadRequestException(ValidationMessage.OUT_OF_STOCK);
-                }
-
+            for (ProductDTO productDTO : productList) {
+                Product product = productRepository.findProductById(productDTO.id());
                 OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setQuantity(productDTO.getQuantity());
+                orderDetail.setQuantity(productDTO.quantity());
                 orderDetail.setCustomerOrder(customerOrder);
                 orderDetail.setProduct(product);
                 orderDetail.setStatus(OrderDetailStatus.PENDING);
@@ -173,4 +160,102 @@ public class OrderServiceImpl implements OrderService {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
         }
     }
+
+    private List<ProductDTO> getProductListByOrderRequest(OrderRequestDTO dto, Integer id) throws BadRequestException {
+        List<ProductDTO> productList = new ArrayList<>();
+
+        if (Constants.ORDER_TYPE.CART.equals(dto.getOrderType())) {
+            if (dto.getProductIds() == null || dto.getProductIds().isEmpty()) {
+                throw new BadRequestException(ValidationMessage.PRODUCT_NOT_SELECTED);
+            }
+
+            List<Cart> cartListByUser = cartRepository.findAllByUserId(id);
+            List<Integer> productIdsByUser = cartListByUser.stream().map(Cart::getProductId).collect(Collectors.toList());
+            if (dto.getProductIds().stream().anyMatch(e -> !productIdsByUser.contains(e))) {
+                throw new BadRequestException(FailureMessage.PRODUCT_NOT_IN_CART);
+            }
+
+            List<Cart> cartListByOrder = cartListByUser.stream()
+                    .filter(cart -> dto.getProductIds().contains(cart.getProductId()))
+                    .collect(Collectors.toList());
+            for (Cart cart : cartListByOrder) {
+                ProductDTO productDTO = new ProductDTO(cart.getProductId(), cart.getQuantity());
+                productList.add(productDTO);
+            }
+        } else if (Constants.ORDER_TYPE.DIRECT.equals(dto.getOrderType())) {
+            if (dto.getProduct() == null) {
+                throw new BadRequestException(ValidationMessage.PRODUCT_NOT_SELECTED);
+            }
+
+            Product product = productRepository.findById(dto.getProduct().getId())
+                    .orElseThrow(() -> new BadRequestException(FailureMessage.PRODUCT_NOT_FOUND));
+            if (!product.getStatus()) {
+                throw new BadRequestException(FailureMessage.DISABLED_PRODUCT);
+            }
+            if (dto.getProduct().getQuantity() == null || dto.getProduct().getQuantity() < 1) {
+                throw new BadRequestException(ValidationMessage.PRODUCT_NOT_SELECTED);
+            }
+            if (dto.getProduct().getQuantity() > product.getQuantity()) {
+                throw new BadRequestException(ValidationMessage.OUT_OF_STOCK);
+            }
+
+            ProductDTO productDTO = new ProductDTO(dto.getProduct().getId(), dto.getProduct().getQuantity());
+            productList.add(productDTO);
+        } else {
+            throw new BadRequestException(ValidationMessage.ORDER_TYPE_NOT_VALID);
+        }
+
+        return productList;
+    }
+
+    private record ProductDTO(Integer id, Integer quantity) {}
+
+//    @Override
+//    public void cancelOrder(Integer id, OrderUpdateRequestDTO dto) throws BadRequestException {
+//        String username = SecurityUtils.getUsername();
+//        Set<String> roles = SecurityUtils.getRoles();
+//
+//        CustomerOrder order = customerOrderRepository.findById(id)
+//                .orElseThrow(() -> new BadRequestException("Order info not found!"));
+//
+//        if (order.getStatus().equals(OrderStatus.PENDING)
+//                || order.getStatus().equals(OrderStatus.CONFIRMED)
+//                || order.getStatus().equals(OrderStatus.SHIPPED)) {
+//            order.setStatus(OrderStatus.CANCELLED);
+//
+//            OrderHistory orderHistory = new OrderHistory();
+//            orderHistory.setOrderId(order.getId());
+//            orderHistory.setStatus(String.valueOf(OrderStatus.CANCELLED));
+//            orderHistory.setNote(dto.getCancelReason().trim());
+//            orderHistory.setUpdatedBy(username);
+//
+//            List<OrderDetail> orderDetails = order.getOrderDetails();
+//            List<ShippingHistory> shippingHistories = new ArrayList<>();
+//            if (orderDetails != null && !orderDetails.isEmpty()) {
+//                for (OrderDetail detail : orderDetails) {
+//                    Integer shipperId = shippingHistoryRepository.findShipperIdByOrderId(order.getId());
+//                    if (shipperId != null) {
+//                        ShippingHistory shippingHistory = new ShippingHistory();
+//                        shippingHistory.setOrderId(order.getId());
+//                        shippingHistory.setProductId(detail.getProduct().getId());
+//                        shippingHistory.setShipperId(shipperId);
+//                        shippingHistory.setStatus(String.valueOf(OrderStatus.CANCELLED));
+//                        shippingHistory.setNote(dto.getCancelReason().trim());
+//                        shippingHistory.setUpdatedBy(username);
+//                        shippingHistories.add(shippingHistory);
+//                    }
+//                }
+//            }
+//            shippingHistoryRepository.saveAll(shippingHistories);
+//            orderHistoryRepository.save(orderHistory);
+//            customerOrderRepository.save(order);
+//        } else if (order.getStatus().equals(OrderStatus.DELIVERED)) {
+//            throw new BadRequestException("This order already delivered!");
+//        } else if (order.getStatus().equals(OrderStatus.COMPLETED)
+//                || order.getStatus().equals(OrderStatus.PARTIALLY_COMPLETED)) {
+//            throw new BadRequestException("This order already completed!");
+//        } else {
+//            throw new BadRequestException("This order already cancelled!");
+//        }
+//    }
 }

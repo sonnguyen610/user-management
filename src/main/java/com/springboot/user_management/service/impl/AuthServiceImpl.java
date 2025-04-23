@@ -88,6 +88,9 @@ public class AuthServiceImpl implements AuthService {
 
             User user = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new BadRequestException(FailureMessage.USER_NOT_FOUND));
+            if (!user.getStatus()) {
+                throw new BadRequestException(FailureMessage.DISABLED_USER);
+            }
             UserLoginResponseDTO userDto = userLoginResponseDtoMapper.toDTO(user);
             String token = jwtUtils.generateToken(user.getUsername(),
                     user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));

@@ -37,4 +37,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Optional<Product> findByIdAndStatusIsTrue(Integer id);
 
     List<Product> findAllByCreatedBy(String createdBy);
+
+    boolean existsByIdAndStatusIsTrue(Integer id);
+
+    Product findProductById(Integer id);
 }
