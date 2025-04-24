@@ -27,6 +27,8 @@ public class ProductResponseDTO {
 
     private Boolean status;
 
+    private Integer saleCount;
+
     private CategoryDTO category;
 
     private BrandDTO brand;

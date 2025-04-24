@@ -182,6 +182,7 @@ public class OrderServiceImpl implements OrderService {
                 ProductDTO productDTO = new ProductDTO(cart.getProductId(), cart.getQuantity());
                 productList.add(productDTO);
             }
+            cartRepository.deleteAllInBatch(cartListByOrder);
         } else if (Constants.ORDER_TYPE.DIRECT.equals(dto.getOrderType())) {
             if (dto.getProduct() == null) {
                 throw new BadRequestException(ValidationMessage.PRODUCT_NOT_SELECTED);
@@ -209,53 +210,4 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private record ProductDTO(Integer id, Integer quantity) {}
-
-//    @Override
-//    public void cancelOrder(Integer id, OrderUpdateRequestDTO dto) throws BadRequestException {
-//        String username = SecurityUtils.getUsername();
-//        Set<String> roles = SecurityUtils.getRoles();
-//
-//        CustomerOrder order = customerOrderRepository.findById(id)
-//                .orElseThrow(() -> new BadRequestException("Order info not found!"));
-//
-//        if (order.getStatus().equals(OrderStatus.PENDING)
-//                || order.getStatus().equals(OrderStatus.CONFIRMED)
-//                || order.getStatus().equals(OrderStatus.SHIPPED)) {
-//            order.setStatus(OrderStatus.CANCELLED);
-//
-//            OrderHistory orderHistory = new OrderHistory();
-//            orderHistory.setOrderId(order.getId());
-//            orderHistory.setStatus(String.valueOf(OrderStatus.CANCELLED));
-//            orderHistory.setNote(dto.getCancelReason().trim());
-//            orderHistory.setUpdatedBy(username);
-//
-//            List<OrderDetail> orderDetails = order.getOrderDetails();
-//            List<ShippingHistory> shippingHistories = new ArrayList<>();
-//            if (orderDetails != null && !orderDetails.isEmpty()) {
-//                for (OrderDetail detail : orderDetails) {
-//                    Integer shipperId = shippingHistoryRepository.findShipperIdByOrderId(order.getId());
-//                    if (shipperId != null) {
-//                        ShippingHistory shippingHistory = new ShippingHistory();
-//                        shippingHistory.setOrderId(order.getId());
-//                        shippingHistory.setProductId(detail.getProduct().getId());
-//                        shippingHistory.setShipperId(shipperId);
-//                        shippingHistory.setStatus(String.valueOf(OrderStatus.CANCELLED));
-//                        shippingHistory.setNote(dto.getCancelReason().trim());
-//                        shippingHistory.setUpdatedBy(username);
-//                        shippingHistories.add(shippingHistory);
-//                    }
-//                }
-//            }
-//            shippingHistoryRepository.saveAll(shippingHistories);
-//            orderHistoryRepository.save(orderHistory);
-//            customerOrderRepository.save(order);
-//        } else if (order.getStatus().equals(OrderStatus.DELIVERED)) {
-//            throw new BadRequestException("This order already delivered!");
-//        } else if (order.getStatus().equals(OrderStatus.COMPLETED)
-//                || order.getStatus().equals(OrderStatus.PARTIALLY_COMPLETED)) {
-//            throw new BadRequestException("This order already completed!");
-//        } else {
-//            throw new BadRequestException("This order already cancelled!");
-//        }
-//    }
 }

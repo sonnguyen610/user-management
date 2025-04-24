@@ -139,17 +139,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<BaseResponse<UserResponsePagingDTO>> getAllUserByConditions(String startDate, String endDate, String username, String fullName, Boolean status, String role, Integer page, Integer size) {
         try {
-            Set<String> roles = SecurityUtils.getRoles();
-            if (roles.contains(RoleEnum.ADMIN.getType())) {
-                if (!RoleEnum.getRoleNames().contains(role)) {
-                    throw new BadRequestException(FailureMessage.ROLE_NOT_ALLOWED);
-                }
-            } else {
-                if (!role.equals(RoleEnum.MEMBER.name()) || !role.equals(RoleEnum.SHIPPER.name())) {
-                    throw new BadRequestException(FailureMessage.ROLE_NOT_ALLOWED);
-                }
-            }
-
             startDate = LocalDate.parse(startDate).atStartOfDay()
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             endDate = LocalDate.parse(endDate).atTime(23, 59, 59)

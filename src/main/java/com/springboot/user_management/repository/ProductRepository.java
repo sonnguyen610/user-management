@@ -22,17 +22,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "select * from product " +
             "where (:name is null or :name = '' or name like %:name%) " +
-            "and (:createdBy is null or :createdBy = '' or created_by = :createdBy) " +
+            "and created_at between :startDate and :endDate " +
             "and (:status is null or status = :status) " +
-            "and created_at >= :date order by created_at desc", nativeQuery = true)
-    List<Product> findAllByConditions(String name, String createdBy, Boolean status, String date);
-
-    @Query(value = "select * from product " +
-            "where (:name is null or :name = '' or name like %:name%) " +
-            "and (:createdBy is null or :createdBy = '' or created_by = :createdBy) " +
-            "and (:status is null or status = :status) " +
-            "and created_at >= :date order by created_at desc", nativeQuery = true)
-    Page<Product> findAllByConditions(String name, String createdBy, Boolean status, String date, Pageable pageable);
+            "and created_by = :username order by created_at desc", nativeQuery = true)
+    Page<Product> findAllByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, String username, Pageable pageable);
 
     Optional<Product> findByIdAndStatusIsTrue(Integer id);
 
