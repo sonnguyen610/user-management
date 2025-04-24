@@ -25,7 +25,7 @@ public interface UserController {
     @PutMapping
     ResponseEntity<BaseResponse<UserResponseDTO>> updateUserInfo(@Valid @RequestBody UserInfoRequestDTO dto, BindingResult bindingResult);
 
-    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search")
     ResponseEntity<BaseResponse<UserResponsePagingDTO>> getAllUserByConditions(@RequestParam String startDate, @RequestParam String endDate,
                                                                                @RequestParam(required = false) String username,

@@ -12,4 +12,9 @@ public class Constants {
             "/api/auth/login",
             "/api/auth/register"
     );
+
+    public static final class ORDER_TYPE {
+        public static final String CART = "CART";
+        public static final String DIRECT = "DIRECT";
+    }
 }

@@ -1,9 +1,11 @@
 package com.springboot.user_management.service.impl;
 
+import com.springboot.user_management.config.SecurityUtils;
 import com.springboot.user_management.constant.FailureMessage;
 import com.springboot.user_management.constant.SuccessMessage;
 import com.springboot.user_management.constant.ValidationMessage;
 import com.springboot.user_management.dto.request.ProductRequestDTO;
+import com.springboot.user_management.dto.request.ProductSearchDTO;
 import com.springboot.user_management.dto.response.ProductResponseDTO;
 import com.springboot.user_management.dto.response.paging.Metadata;
 import com.springboot.user_management.dto.response.paging.ProductResponsePagingDTO;
@@ -14,6 +16,7 @@ import com.springboot.user_management.mapper.response.ProductResponseDtoMapper;
 import com.springboot.user_management.repository.BrandRepository;
 import com.springboot.user_management.repository.CategoryRepository;
 import com.springboot.user_management.repository.ProductRepository;
+import com.springboot.user_management.repository.custom.ProductCustomRepository;
 import com.springboot.user_management.service.ProductService;
 import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
@@ -28,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +54,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private BrandRepository brandRepository;
 
+    @Autowired
+    private ProductCustomRepository productCustomRepository;
+
     @Override
     public ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct() {
         try {
@@ -61,13 +69,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByConditions(String name, String createdBy, Boolean status, String date, Integer page, Integer size) {
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, Integer page, Integer size) {
         try {
+            String username = SecurityUtils.getUsername();
+
+            startDate = LocalDate.parse(startDate).atStartOfDay()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            endDate = LocalDate.parse(endDate).atTime(23, 59, 59)
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             Pageable pageable = PageRequest.of(page - 1, size);
-            Page<Product> productPage = productRepository.findAllByConditions(name, createdBy, status, date, pageable);
+            Page<Product> productPage = productRepository.findAllByNameAndStatusAndDate(name, status, startDate, endDate, username, pageable);
             List<ProductResponseDTO> responseDTOList = productPage.getContent().stream().map(productResponseDtoMapper::toDTO).collect(Collectors.toList());
             ProductResponsePagingDTO responsePagingDTO = new ProductResponsePagingDTO(Metadata.build(productPage), responseDTOList);
             return ResponseFactory.success(HttpStatus.OK, responsePagingDTO, SuccessMessage.SUCCESS);
+        } catch (Exception e) {
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
+        }
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByConditions(ProductSearchDTO dto, Integer page, Integer size) {
+        try {
+            ProductResponsePagingDTO response = productCustomRepository.findAllProductByConditions(dto, page, size);
+            return ResponseFactory.success(HttpStatus.OK, response, SuccessMessage.SUCCESS);
         } catch (Exception e) {
             return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
         }

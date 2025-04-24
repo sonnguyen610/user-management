@@ -20,4 +20,5 @@ public class FailureMessage {
     public static final String DISABLED_USER = "Your account is already disabled!";
     public static final String DISABLED_PRODUCT = "This product is already disabled!";
     public static final String ROLE_NOT_ALLOWED = "Role type not allowed!";
+    public static final String PRODUCT_NOT_IN_CART = "Some products are not in cart";
 }

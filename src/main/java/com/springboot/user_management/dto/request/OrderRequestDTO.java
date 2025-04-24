@@ -18,6 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 public class OrderRequestDTO {
 
+    @NotBlank(message = ValidationMessage.ORDER_TYPE_NOT_BLANK)
+    private String orderType;
+
     @NotBlank(message = ValidationMessage.ADDRESS_NOT_BLANK)
     private String shippingAddress;
 
@@ -28,9 +31,9 @@ public class OrderRequestDTO {
     )
     private String paymentMethod;
 
-    @NotNull(message = ValidationMessage.PRODUCT_LIST_NOT_NULL)
-    @Size(min = 1, message = ValidationMessage.PRODUCT_NOT_SELECTED)
-    private List<ProductDTO> products;
+    private ProductDTO product;
+
+    private List<Integer> productIds;
 
     private String voucher;
 
