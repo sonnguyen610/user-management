@@ -22,10 +22,7 @@ import com.springboot.user_management.utils.BaseResponse;
 import com.springboot.user_management.utils.ResponseFactory;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -69,16 +66,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, Integer page, Integer size) {
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, String sortBy, String sortType, Integer page, Integer size) {
         try {
             String username = SecurityUtils.getUsername();
+
+            if (sortBy == null || sortBy.trim().isEmpty()) {
+                sortBy = "createdAt";
+            } else {
+                sortBy = sortBy.trim();
+            }
+
+            Sort.Direction direction = (sortType == null || sortType.isEmpty() || sortType.equalsIgnoreCase("DESC"))
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
 
             startDate = LocalDate.parse(startDate).atStartOfDay()
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             endDate = LocalDate.parse(endDate).atTime(23, 59, 59)
                     .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-            Pageable pageable = PageRequest.of(page - 1, size);
+            Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
             Page<Product> productPage = productRepository.findAllByNameAndStatusAndDate(name, status, startDate, endDate, username, pageable);
             List<ProductResponseDTO> responseDTOList = productPage.getContent().stream().map(productResponseDtoMapper::toDTO).collect(Collectors.toList());
             ProductResponsePagingDTO responsePagingDTO = new ProductResponsePagingDTO(Metadata.build(productPage), responseDTOList);

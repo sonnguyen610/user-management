@@ -25,6 +25,8 @@ public interface ProductController {
                                                                                 @RequestParam(required = false) Boolean status,
                                                                                 @RequestParam(required = true) String startDate,
                                                                                 @RequestParam(required = true) String endDate,
+                                                                                @RequestParam(required = false) String sortBy,
+                                                                                @RequestParam(required = false) String sortType,
                                                                                 @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                                 @RequestParam(required = false, defaultValue = "10") Integer size);
 

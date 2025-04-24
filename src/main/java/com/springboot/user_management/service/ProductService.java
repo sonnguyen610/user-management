@@ -13,7 +13,7 @@ import java.util.Map;
 public interface ProductService {
     ResponseEntity<BaseResponse<List<ProductResponseDTO>>> findAllProduct();
 
-    ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, Integer page, Integer size);
+    ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByNameAndStatusAndDate(String name, Boolean status, String startDate, String endDate, String sortBy, String sortType, Integer page, Integer size);
 
     ResponseEntity<BaseResponse<ProductResponsePagingDTO>> findAllProductByConditions(ProductSearchDTO dto, Integer page, Integer size);
 

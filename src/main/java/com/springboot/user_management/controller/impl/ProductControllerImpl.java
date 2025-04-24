@@ -30,8 +30,8 @@ public class ProductControllerImpl implements ProductController {
     }
 
     @Override
-    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByOwner(String name, Boolean status, String startDate, String endDate, Integer page, Integer size) {
-        return productService.findAllProductByNameAndStatusAndDate(name, status, startDate, endDate, page, size);
+    public ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByOwner(String name, Boolean status, String startDate, String endDate, String sortBy, String sortType, Integer page, Integer size) {
+        return productService.findAllProductByNameAndStatusAndDate(name, status, startDate, endDate, sortBy, sortType, page, size);
     }
 
     @Override

@@ -39,7 +39,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "and (:username is null or :username = '' or u.username = :username) " +
             "and (:fullName is null or :fullName = '' or u.full_name = :fullName) " +
             "and (:role is null or r.name = concat('ROLE_', :role)) " +
-            "and (:status is null or u.status = :status)", nativeQuery = true)
+            "and (:status is null or u.status = :status) " +
+            "order by u.created_at desc", nativeQuery = true)
     Page<User> findAllByConditions(String startDate, String endDate, String username, String fullName, Boolean status, String role, Pageable pageable);
 
     long countByRoles_NameAndStatusIsTrue(String name);
