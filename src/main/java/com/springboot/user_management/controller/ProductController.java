@@ -30,7 +30,7 @@ public interface ProductController {
                                                                                 @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                                 @RequestParam(required = false, defaultValue = "10") Integer size);
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     ResponseEntity<BaseResponse<ProductResponsePagingDTO>> getAllProductByConditions(@RequestBody ProductSearchDTO dto,
                                                                                      @RequestParam(required = false, defaultValue = "1") Integer page,
                                                                                      @RequestParam(required = false, defaultValue = "10") Integer size);

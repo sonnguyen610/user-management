@@ -31,7 +31,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 "join brand b on b.id = p.brand_id " +
                 "join category c on c.id = p.category_id " +
                 "where p.status = true and b.status = true and c.status = true ");
-        if (dto.getName() != null && !dto.getName().trim().isEmpty()) {
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
             sql.append("and p.name like :name ");
         }
         if (dto.getBrand() != null && !dto.getBrand().isEmpty()) {
@@ -48,20 +48,28 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 sql.append("and p.price between :minPrice and :maxPrice ");
             }
         }
-        switch (dto.getSortBy().trim()) {
-            case "saleCount":
-                sql.append("order by p.sale_count desc");
-                break;
-            case "price":
-                sql.append(String.format("order by p.price %s",
-                        dto.getSortType() == null ? "desc" : dto.getSortType().trim()));
-            default:
-                sql.append("order by p.created_at desc");
-                break;
+
+        if (dto.getSortBy() == null) {
+            sql.append("order by p.created_at desc");
+        } else {
+            switch (dto.getSortBy()) {
+                case "saleCount":
+                    sql.append("order by p.sale_count desc");
+                    break;
+                case "price":
+                    sql.append(String.format("order by p.price %s",
+                            dto.getSortType() == null ? "desc" : dto.getSortType().trim()));
+                    break;
+                case "createdAt":
+                case "":
+                default:
+                    sql.append("order by p.created_at desc");
+                    break;
+            }
         }
 
         Query query = entityManager.createNativeQuery(sql.toString(), Product.class);
-        if (dto.getName() != null && !dto.getName().trim().isEmpty()) {
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
             query.setParameter("name", "%" + dto.getName().trim() + "%");
         }
         if (dto.getBrand() != null && !dto.getBrand().isEmpty()) {
@@ -74,11 +82,11 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
         query.setFirstResult(page * size);
         query.setMaxResults(size);
 
-        long total =((Number) query.getSingleResult()).longValue();
-        int totalPage = (int) Math.ceil((double) total /size);
-
         List<Product> productList = query.getResultList();
         List<ProductResponseDTO> dtoList = productResponseDtoMapper.toListDTO(productList);
+
+        long total =((Number) productList.size()).longValue();
+        int totalPage = (int) Math.ceil((double) total /size);
 
         Metadata metadata = new Metadata(page, size, totalPage, total);
         ProductResponsePagingDTO response = new ProductResponsePagingDTO(metadata, dtoList);

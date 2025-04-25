@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
             ProductResponsePagingDTO response = productCustomRepository.findAllProductByConditions(dto, page, size);
             return ResponseFactory.success(HttpStatus.OK, response, SuccessMessage.SUCCESS);
         } catch (Exception e) {
-            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, FailureMessage.FAILURE);
+            return ResponseFactory.error(HttpStatus.BAD_REQUEST, null, e.getMessage());
         }
     }
 

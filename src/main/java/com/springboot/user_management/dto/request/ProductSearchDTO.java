@@ -26,4 +26,16 @@ public class ProductSearchDTO {
     private String sortBy;
 
     private String sortType;
+
+    public void trimFields() {
+        if (this.name != null) {
+            this.name = this.name.trim();
+        }
+        if (this.sortBy != null) {
+            this.sortBy = this.sortBy.trim();
+        }
+        if (this.sortType != null) {
+            this.sortType = this.sortType.trim();
+        }
+    }
 }
